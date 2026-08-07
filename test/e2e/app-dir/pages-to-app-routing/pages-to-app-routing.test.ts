@@ -209,6 +209,35 @@ describe('pages-to-app-routing with cross-router shadowing under basePath', () =
       'App About: en'
     )
   })
+
+  it('should navigate between pages routes below an app route without duplicating basePath', async () => {
+    const childPath = '/base/parent/parent-1/child/child-1'
+    const grandChildPath = `${childPath}/grand-child/grand-1`
+
+    await warmUpRoute(next, childPath)
+
+    const browser = await next.browser(childPath)
+    expect(await browser.elementByCss('#page-title').text()).toBe(
+      'Pages Child: child-1 (parent-1)'
+    )
+
+    await browser.elementByCss('#to-grand-child-link').click()
+
+    await retry(async () => {
+      expect(new URL(await browser.url()).pathname).toBe(grandChildPath)
+      expect(await browser.elementByCss('#page-title').text()).toBe(
+        'Pages Grandchild: grand-1 (child-1, parent-1)'
+      )
+    }, 15000)
+    await browser.elementByCss('#to-child-link').click()
+
+    await retry(async () => {
+      expect(new URL(await browser.url()).pathname).toBe(childPath)
+      expect(await browser.elementByCss('#page-title').text()).toBe(
+        'Pages Child: child-1 (parent-1)'
+      )
+    }, 15000)
+  })
 })
 
 // A pages optional catch-all (`[[...slug]]`) owns `/` by absorbing zero

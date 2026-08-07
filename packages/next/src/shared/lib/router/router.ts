@@ -1075,6 +1075,14 @@ export default class Router implements BaseRouter {
     skipNavigate?: boolean
   ) {
     if (process.env.__NEXT_CLIENT_ROUTER_FILTER_ENABLED) {
+      const asWithBasePathAndLocale = addBasePath(
+        addLocale(
+          hasBasePath(as) ? removeBasePath(as) : as,
+          locale || this.locale,
+          this.defaultLocale
+        )
+      )
+
       if (!this._bfl_s && !this._bfl_d) {
         const { BloomFilter } =
           require('../../lib/bloom-filter') as typeof import('../../lib/bloom-filter')
@@ -1101,9 +1109,7 @@ export default class Router implements BaseRouter {
             return true
           }
           handleHardNavigation({
-            url: addBasePath(
-              addLocale(as, locale || this.locale, this.defaultLocale)
-            ),
+            url: asWithBasePathAndLocale,
             router: this,
           })
           return new Promise(() => {})
@@ -1190,9 +1196,7 @@ export default class Router implements BaseRouter {
                 return true
               }
               handleHardNavigation({
-                url: addBasePath(
-                  addLocale(as, locale || this.locale, this.defaultLocale)
-                ),
+                url: asWithBasePathAndLocale,
                 router: this,
               })
               return new Promise(() => {})
